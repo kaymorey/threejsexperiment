@@ -3,7 +3,7 @@ var Triangle = (function(){
     function Triangle(){
         THREE.Object3D.call(this);
 
-        var geometry = new THREE.TetrahedronGeometry(40, 0);
+        var geometry = new THREE.TetrahedronGeometry(70, 0);
 
         //geometry.faces[0].color.setHex(0x888888);
 
@@ -17,7 +17,8 @@ var Triangle = (function(){
         });
 
         this.mesh = new THREE.Mesh(geometry, material);
-        //this.mesh.rotation.x = 10;
+        this.mesh.rotation.y = Math.PI/4;
+        this.mesh.rotation.x = Math.PI;
         this.add(this.mesh);
     }
 
@@ -25,7 +26,7 @@ var Triangle = (function(){
     Triangle.prototype.constructor = Triangle;
 
     Triangle.prototype.update = function() {
-        //this.mesh.rotation.z += 0.01;
+        //this.mesh.rotation.x += 0.01;
     };
 
     return Triangle;
