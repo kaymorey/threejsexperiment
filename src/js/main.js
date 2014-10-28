@@ -7,7 +7,7 @@ function init(){
     $('.three').append(webgl.renderer.domElement);
 
     gui = new dat.GUI();
-    //gui.add(webgl.triangle.rotation, 'x').min(-Math.PI).max(Math.PI);
+    gui.add(webgl.camera.rotation, 'x').min(-20).max(20);
     gui.close();
 
     $(window).on('resize', resizeHandler);
@@ -15,6 +15,7 @@ function init(){
     $(window).on('mousemove', onDocumentMouseMove);
 
     animate();
+
 }
 
 function resizeHandler() {
@@ -24,7 +25,7 @@ function resizeHandler() {
 function onDocumentMouseMove(event) {
     // the following line would stop any other event handler from firing
     // (such as the mouse's TrackballControls)
-    // event.preventDefault();
+    event.preventDefault();
     
     // update the mouse variable
     webgl.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -34,5 +35,4 @@ function onDocumentMouseMove(event) {
 function animate() {
     requestAnimationFrame(animate);
     webgl.render();
-    webgl.update();
 }
