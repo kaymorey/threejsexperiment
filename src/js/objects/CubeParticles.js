@@ -4,6 +4,8 @@ var CubeParticles = (function(){
         THREE.Object3D.call(this);
         
         this.particles = 8000;
+        this.rotate = false;
+        this.colors = [new THREE.Color(0x113F59), new THREE.Color(0x19BEC0), new THREE.Color(0xF3EDD3), new THREE.Color(0xD54F58), new THREE.Color(0x444444)];
 
         var geometry = new THREE.BufferGeometry();
 
@@ -12,7 +14,7 @@ var CubeParticles = (function(){
 
         var color = new THREE.Color();
 
-        var n = 100, n2 = n / 2; // particles spread in the cube
+        var n = 300, n2 = n / 2; // particles spread in the cube
 
         for ( var i = 0; i < positions.length; i += 3 ) {
 
@@ -28,15 +30,15 @@ var CubeParticles = (function(){
 
             // colors
 
-            var vx = ( x / n ) + 0.5;
+            /*var vx = ( x / n ) + 0.5;
             var vy = ( y / n ) + 0.5;
             var vz = ( z / n ) + 0.5;
 
-            color.setRGB( vx, vy, vz );
+            color.setRGB( vx, vy, vz );*/
 
-            colors[ i ]     = color.r;
-            colors[ i + 1 ] = color.g;
-            colors[ i + 2 ] = color.b;
+            colors[ i ]     = 68 / 255;
+            colors[ i + 1 ] = 68 / 255;
+            colors[ i + 2 ] = 68 / 255;
 
         }
 
@@ -57,9 +59,11 @@ var CubeParticles = (function(){
     CubeParticles.prototype.constructor = CubeParticles;
 
     CubeParticles.prototype.explode = function() {
+        var cubeParticles = this;
+
         var positions = this.particleSystem.geometry.attributes.position.array;
 
-        var n = window.innerWidth / 2, n2 = n / 2;
+        var n = window.innerWidth, n2 = n / 2;
 
         var newPositions = new Float32Array( this.particles * 3 );
         for(var i = 0; i < newPositions.length; i += 3) {
@@ -71,17 +75,38 @@ var CubeParticles = (function(){
             newPositions[ i + 1 ] = y;
             newPositions[ i + 2 ] = z;
         }
-        console.log(this.particleSystem.geometry.attributes.position.array);
-        var test = this;
+        
         newPositions.onComplete = function() {
-            console.log(test.particleSystem.geometry.attributes.position.array);
+            cubeParticles.rotate = true;
         };
-        TweenLite.to(this.particleSystem.geometry.attributes.position.array, 50, newPositions); //tween the values of a to those of b over 2 seconds, and log them to the console.
+        TweenLite.to(this.particleSystem.geometry.attributes.position.array, 5, newPositions);
+    }
 
-    };
+    CubeParticles.prototype.changeColors = function() {
+        console.log('test');
+        var colors = this.particleSystem.geometry.attributes.color.array;
+
+        var newColors = new Float32Array( this.particles * 3 );
+        for(var i = 0; i < newColors.length; i += 3) {
+            var newColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+
+            newColors[ i ]     = newColor.r;
+            newColors[ i + 1 ] = newColor.g;
+            newColors[ i + 2 ] = newColor.b;
+        }
+
+        this.particleSystem.geometry.attributes.color.array = newColors;
+    }
 
     CubeParticles.prototype.update = function() {
         this.particleSystem.geometry.attributes.position.needsUpdate = true;
+        this.particleSystem.geometry.attributes.color.needsUpdate = true;
+
+        this.changeColors();
+
+        if (this.rotate) {
+            this.rotation.y += 0.005;
+        }
     }
 
     return CubeParticles;

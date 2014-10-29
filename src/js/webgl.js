@@ -11,7 +11,15 @@ var Webgl = (function(){
 
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(width, height);
-        this.renderer.setClearColor(0xebc130);
+        this.renderer.setClearColor(0x19bec0);
+
+        this.composer = new THREE.EffectComposer(this.renderer);
+        this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+
+        glitchPass = new THREE.GlitchPass();
+        glitchPass.renderToScreen = true;
+        this.composer.addPass(glitchPass);
+        this.glichEffect = false;
 
 
         // Light
@@ -22,7 +30,8 @@ var Webgl = (function(){
         this.light.position.set(0, 0, 350);
         this.scene.add(this.light);
 
-        this.cubeParticles = new CubeParticles();
+        this.ambientLight = new THREE.AmbientLight(0x444444);
+        this.scene.add(this.ambientLight);
 
         // Global variables
         this.mouse = { x: 0, y: 0 };
@@ -33,6 +42,7 @@ var Webgl = (function(){
         this.cubesRotation = false;
         this.cubes = [];
         this.cubesDim = 100;
+        this.psreadParticles = false;
 
         // Display first cube
         var cube = new Cube(1, 1, 1);
@@ -77,18 +87,36 @@ var Webgl = (function(){
                 displayVerticalCubes();
                 webgl.hoverInteraction = true;
                 window.setTimeout(function() {
-                    addZCubes();
-                }, 5000);
+                    $('div.title').fadeIn('slow');
+                }, 2000);
                 
             }});
         }
+
+        $(document).on('click', 'a.next', function(e) {
+            e.preventDefault();
+            $(this).fadeOut();
+            $('h1.first').fadeOut();
+            $('h1.second').fadeIn('slow');
+            window.setTimeout(function() {
+                $('h1.second').fadeOut('slow', function() {
+                    $('h1.third').fadeIn();
+                    addZCubes();
+                    window.setTimeout(function() {
+                        $('h1.third').fadeOut('slow');
+                    }, 3000);
+                });   
+            }, 1000);         
+        });
 
         function popCubes(minIndex, maxIndex) {
             var j = 0;
             for (var i = minIndex; i <= maxIndex; i++) {
                 var cube = webgl.cubes[i];
                 webgl.scene.add(cube);
-                TweenLite.to(cube.scale, 0.3, {x: webgl.cubesDim, y: webgl.cubesDim, z: 1, ease: Expo.easeOut, delay: j*0.1});
+                TweenLite.to(cube.scale, 0.3, {x: webgl.cubesDim, y: webgl.cubesDim, z: 1, ease: Expo.easeOut, delay: j*0.1, onStart:function() {
+                    document.getElementById('pop').play();
+                }});
                 j++;
             }
         }
@@ -117,7 +145,9 @@ var Webgl = (function(){
                     cube.scale.y = 0.1;
                     webgl.cubes.push(cube);
                     webgl.scene.add(cube);
-                    TweenLite.to(cube.scale, 0.3, {x: webgl.cubesDim, y: webgl.cubesDim, z: 1, ease: Expo.easeOut, delay: (j*0.1)+1});
+                    TweenLite.to(cube.scale, 0.3, {x: webgl.cubesDim, y: webgl.cubesDim, z: 1, ease: Expo.easeOut, delay: (j*0.1)+1, onStart: function() {
+                        document.getElementById('pop').play();
+                    }});
                 }
                 for (var i = -1; i >= -3; i--) {
                     var cube = new Cube(1, 1, 1);
@@ -126,7 +156,9 @@ var Webgl = (function(){
                     cube.scale.y = 0.1;
                     webgl.cubes.push(cube);
                     webgl.scene.add(cube);
-                    TweenLite.to(cube.scale, 0.3, {x: webgl.cubesDim, y: webgl.cubesDim, z: 1, ease: Expo.easeOut, delay: (j*0.1)+1});
+                    TweenLite.to(cube.scale, 0.3, {x: webgl.cubesDim, y: webgl.cubesDim, z: 1, ease: Expo.easeOut, delay: (j*0.1)+1, onStart: function() {
+                        document.getElementById('pop').play();
+                    }});
                 }
             }
             
@@ -135,19 +167,21 @@ var Webgl = (function(){
         function addZCubes() {
             var i = 0;
             for (i = 0; i < webgl.cubes.length; i++) {
-                //webgl.cubes[i].rotation.z = -10;
-                TweenLite.to(webgl.cubes[i].scale, 1, {x: 100, y: 100, z: 100, ease: Expo.easeOut, onStart: function() {
+                TweenLite.to(webgl.cubes[i].scale, 1, {x: 100, y: 100, z: 100, delay: 0.4, ease: Expo.easeOut, onStart: function() {
                     webgl.hoverInteraction = false;
                 },
                 onComplete: function() {
-                    webgl.cubesRotation = true;
-                    moveLight();
+                    window.setTimeout(function() {
+                        webgl.cubesRotation = true;
+                        document.getElementById('c2c').play();
+                        moveLight();
+                    }, 500);
                 }});
             }
         }
 
         function moveLight() {
-            TweenLite.to(webgl.light.position, 1, {x: -100, y: -100, z: 50});
+            TweenLite.to(webgl.light.position, 1, {x: 0, y: -100, z: 50});
             webgl.light.intensity = 200;
         }
 
@@ -162,7 +196,13 @@ var Webgl = (function(){
     Webgl.prototype.render = function() {    
         this.renderer.render(this.scene, this.camera);
 
-        this.cubeParticles.update();
+        if (this.spreadParticles) {
+            this.cubeParticles.update();
+        }
+
+        if (this.glichEffect) {
+            this.composer.render();
+        }
 
         if (this.hoverInteraction) {
             this.cubesHoverEffects();
@@ -194,9 +234,11 @@ var Webgl = (function(){
     Webgl.prototype.moveCubesToCenter = function() {
         for (i = 0; i < this.cubes.length; i++) {
             TweenLite.to(this.cubes[i].position, 7, {x: 0, y: 0, z: 0, ease: Quad.easeIn, delay: i*0.03});
+            TweenLite.to(this.cubes[i].rotation, 1, {z: -10, ease: Quad.easeIn, delay: i*0.03});
         }
         window.setTimeout(function() {
             webgl.removeAllCubesButFirst();
+            TweenLite.to(webgl.cubes[0].rotation, 1, {z: 0, ease: Quad.easeIn});
         }, 10150);
     }
 
@@ -213,9 +255,18 @@ var Webgl = (function(){
         TweenLite.to(this.cubes[0].scale, 0.8, {x: 300, y: 300, z: 300, ease: Expo.easeIn, onComplete: function() {
             webgl.cubesRotation = false;
             TweenLite.to(webgl.cubes[0].rotation, 1.2, {x: 0, onComplete: function() {
-                webgl.scene.remove(webgl.cubes[0]);
-                webgl.scene.add(this.cubeParticles);
-                webgl.cubeParticles.explode();
+                window.setTimeout(function() {
+                    webgl.scene.remove(webgl.cubes[0]);
+
+                    webgl.cubeParticles = new CubeParticles();
+                    webgl.spreadParticles = true;
+                    webgl.scene.add(webgl.cubeParticles);
+                    webgl.cubeParticles.explode();
+                }, 1000);
+
+                window.setTimeout(function() {
+                    webgl.glichEffect = true;
+                }, 4000);
             }});
         }});
     }

@@ -3,17 +3,30 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Awesome Experiment</title>
-	<link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
-<body>	
+<body>
+    <!-- Texts -->
+    <div class="title">
+        <h1 class="first">2D is Nice...</h1>
+        <h1 class="second">But</h1>
+        <h1 class="third">3D is better</h1>
+        <a href="#" class="next"></a>
+    </div>
+
+    <!-- Render Three js -->
     <div class="three"></div>
+
+    <!-- Sounds -->
+    <audio src="sounds/pop.wav" id="pop"></audio>
+    <audio src="sounds/c2c.wav" id="c2c"></audio>
+
     <script src="assets/lib/dat-gui/build/dat.gui.min.js"></script>
-	<script src="assets/lib/jquery/dist/jquery.min.js"></script>
-    <script src="assets/lib/greensock/src/minified/TweenMax.min.js"></script>
-	<script src="assets/lib/threejs/build/three.min.js"></script>
+    <script src="assets/lib/jquery/dist/jquery.min.js"></script>
+    <script src="assets/lib/greensock/src/minified/TweenLite.min.js"></script>
+    <script src="assets/lib/threejs/build/three.min.js"></script>
 
     <script src="build/vendors.js"></script>
-    <script src="assets/lib/greensock/src/minified/TweenLite.min.js"></script>
     <script src="build/app.min.js"></script>
 </body>
 </html>
