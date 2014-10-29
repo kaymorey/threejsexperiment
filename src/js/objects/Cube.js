@@ -1,4 +1,4 @@
-var Cube = (function(width, height, depth){
+var Cube = (function(){
 
     function Cube(width, height, depth){
         THREE.Object3D.call(this);

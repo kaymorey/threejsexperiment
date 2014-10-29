@@ -3,12 +3,6 @@ var Webgl = (function(){
     function Webgl(width, height){
         webgl = this;
 
-        this.mouse = { x: 0, y: 0 };
-        this.INTERSECTED;
-
-        this.hoverInteraction = false;
-        this.cubesRotation = false;
-
         // Basic three.js setup
         this.scene = new THREE.Scene();
         
@@ -19,50 +13,73 @@ var Webgl = (function(){
         this.renderer.setSize(width, height);
         this.renderer.setClearColor(0xebc130);
 
+
+        // Light
         var sphere = new THREE.SphereGeometry( 0.5, 16, 8 );
 
-        var light = new THREE.PointLight( 0xff0040, 2, 50 );
-        light.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
-        light.position.set( 200, 200, 500 );
-        this.scene.add( light );
+        this.light = new THREE.PointLight(0xffffff, 100, 1200);
+        this.light.add( new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xff0040 })));
+        this.light.position.set(0, 0, 350);
+        this.scene.add(this.light);
 
+        this.cubeParticles = new CubeParticles();
+
+        // Global variables
+        this.mouse = { x: 0, y: 0 };
+        this.INTERSECTED;
+
+        this.counter = 200;
+        this.hoverInteraction = false;
+        this.cubesRotation = false;
+        this.cubes = [];
         this.cubesDim = 100;
 
-        this.cube = new Cube(1, 10, 1);
-        this.cube.position.set(-this.cubesDim/2, -this.cubesDim/2 , 0);
-        this.scene.add(this.cube);
+        // Display first cube
+        var cube = new Cube(1, 1, 1);
+        cube.scale.y = 10;
+        cube.position.set(-this.cubesDim/2, -this.cubesDim/2 , 0);
+        this.scene.add(cube);
+        this.cubes = [cube];
 
-        TweenLite.to(this.cube.scale, 0.8, {x: this.cubesDim, ease: Expo.easeIn});
+        TweenLite.to(cube.scale, 0.8, {x: this.cubesDim, ease: Expo.easeIn});
 
-        TweenLite.to(this.cube.position, 0.8, {x: 0, ease: Expo.easeIn});
+        TweenLite.to(cube.position, 0.8, {x: 0, ease: Expo.easeIn});
 
-        TweenLite.to(this.cube.scale, 0.8, {y: this.cubesDim/10, delay: 0.8, ease: Expo.easeOut});
+        TweenLite.to(cube.scale, 0.8, {y: this.cubesDim, delay: 0.8, ease: Expo.easeOut});
 
-        TweenLite.to(this.cube.position, 0.8, {y: 0, delay: 0.8, ease: Expo.easeOut, onComplete: function() {
+        TweenLite.to(cube.position, 0.8, {y: 0, delay: 0.8, ease: Expo.easeOut, onComplete: function() {
             animateTwoSquares();
         }});
 
-        this.cubes = [new Cube(this.cubesDim, this.cubesDim, 1), new Cube(this.cubesDim, this.cubesDim, 1)];
+        // Display two other cubes
+        this.cubes.push(new Cube(1, 1, 1), new Cube(1, 1, 1));
+        this.cubes[1].scale.x = this.cubesDim;
+        this.cubes[1].scale.y = this.cubesDim;
+        this.cubes[2].scale.x = this.cubesDim;
+        this.cubes[2].scale.y = this.cubesDim;
 
-        var animateTwoSquares = function() {
-            webgl.scene.add(webgl.cubes[0]);
+        function animateTwoSquares() {
             webgl.scene.add(webgl.cubes[1]);
+            webgl.scene.add(webgl.cubes[2]);
 
-            TweenLite.to(webgl.cubes[0].position, 0.8, {x: -150, ease: Expo.easeOut});
+            TweenLite.to(webgl.cubes[1].position, 0.8, {x: -150, ease: Expo.easeOut});
 
-            TweenLite.to(webgl.cubes[1].position, 0.8, {x: 150, ease: Expo.easeOut, onComplete: function() {
+            TweenLite.to(webgl.cubes[2].position, 0.8, {x: 150, ease: Expo.easeOut, onComplete: function() {
                 awayCamera();  
             }});
         }
 
-        var awayCamera = function() {
+        function awayCamera() {
             TweenLite.to(webgl.camera.position, 0.8, {z: 1000, ease: Expo.easeOut, onComplete: function() {
                 displayHorizontalCubes();
-                popCubes(2, 7);
-                popCubes(8, 13);
+                popCubes(3, 8);
+                popCubes(9, 14);
                 displayVerticalCubes();
                 webgl.hoverInteraction = true;
-                addZCubes();
+                window.setTimeout(function() {
+                    addZCubes();
+                }, 5000);
+                
             }});
         }
 
@@ -118,15 +135,20 @@ var Webgl = (function(){
         function addZCubes() {
             var i = 0;
             for (i = 0; i < webgl.cubes.length; i++) {
-                TweenLite.to(webgl.cubes[i].scale, 0.8, {z: 100, delay: 5, onComplete: function() {
+                //webgl.cubes[i].rotation.z = -10;
+                TweenLite.to(webgl.cubes[i].scale, 1, {x: 100, y: 100, z: 100, ease: Expo.easeOut, onStart: function() {
                     webgl.hoverInteraction = false;
+                },
+                onComplete: function() {
                     webgl.cubesRotation = true;
+                    moveLight();
                 }});
             }
         }
 
-        function rotateCubes() {
-            
+        function moveLight() {
+            TweenLite.to(webgl.light.position, 1, {x: -100, y: -100, z: 50});
+            webgl.light.intensity = 200;
         }
 
     }
@@ -140,10 +162,8 @@ var Webgl = (function(){
     Webgl.prototype.render = function() {    
         this.renderer.render(this.scene, this.camera);
 
-        // this.someObject.rotation.y += 0.01;
-        // this.someObject.rotation.x += 0.01;
+        this.cubeParticles.update();
 
-        //this.triangle.update();
         if (this.hoverInteraction) {
             this.cubesHoverEffects();
         }
@@ -153,10 +173,51 @@ var Webgl = (function(){
     };
 
     Webgl.prototype.rotateCubes = function() {
+        if (this.counter % 200 == 0) {
+            this.rotationSpeed = this.counter / 200 * 0.01;
+        }
         var i = 0;
         for (i = 0; i < webgl.cubes.length; i++) {
-            webgl.cubes[i].rotation.x += 0.1;
+            webgl.cubes[i].rotation.x += this.rotationSpeed;
         }
+
+        if (this.counter == 1000) {
+            this.moveCubesToCenter();
+            this.counter = -1
+        }
+        
+        if (this.counter >= 0) {
+            this.counter += 1;
+        }
+    }
+
+    Webgl.prototype.moveCubesToCenter = function() {
+        for (i = 0; i < this.cubes.length; i++) {
+            TweenLite.to(this.cubes[i].position, 7, {x: 0, y: 0, z: 0, ease: Quad.easeIn, delay: i*0.03});
+        }
+        window.setTimeout(function() {
+            webgl.removeAllCubesButFirst();
+        }, 10150);
+    }
+
+    Webgl.prototype.removeAllCubesButFirst = function() {
+        for (i = 1; i < this.cubes.length; i++) {
+            this.scene.remove(this.cubes[i]);
+        }
+        var firstCube = this.cubes[0];
+        this.cubes = [firstCube];
+        webgl.growCube();
+    }
+
+    Webgl.prototype.growCube = function() {
+        TweenLite.to(this.cubes[0].scale, 0.8, {x: 300, y: 300, z: 300, ease: Expo.easeIn, onComplete: function() {
+            webgl.cubesRotation = false;
+            TweenLite.to(webgl.cubes[0].rotation, 1.2, {x: 0, onComplete: function() {
+                webgl.scene.remove(webgl.cubes[0]);
+                webgl.scene.add(this.cubeParticles);
+                webgl.cubeParticles.explode();
+            }});
+        }});
     }
 
     Webgl.prototype.cubesHoverEffects = function() {
@@ -177,17 +238,21 @@ var Webgl = (function(){
             if (intersects[0].object != this.INTERSECTED) 
             {
                 if (this.INTERSECTED) {
-                    TweenLite.to(this.INTERSECTED.scale, 0.1, {x: 1, y: 1, ease: Bounce.easeOut});
+                    TweenLite.to(this.INTERSECTED.scale, 0.1, {x: 1, y: 1});
+                    TweenLite.to(this.INTERSECTED.rotation, 0.1, {z: 0});
                 }
                 // store reference to closest object as current intersection object
                 this.INTERSECTED = intersects[0].object;
-                TweenLite.to(this.INTERSECTED.scale, 0.1, {x: 0.3, y: 0.3});
+                TweenLite.to(this.INTERSECTED.scale, 0.1, {x: 1.4, y: 1.4});
+                TweenLite.to(this.INTERSECTED.rotation, 0.1, {z: 10});
             }
         } 
         else // there are no intersections
         {
-            if (this.INTERSECTED) 
-                TweenLite.to(this.INTERSECTED.scale, 0.3, {x: 1, y: 1, ease: Bounce.easeOut});
+            if (this.INTERSECTED) {
+                TweenLite.to(this.INTERSECTED.scale, 0.3, {x: 1, y: 1});
+                TweenLite.to(this.INTERSECTED.rotation, 0.1, {z: 0});
+            }
 
             this.INTERSECTED = null;
         }
