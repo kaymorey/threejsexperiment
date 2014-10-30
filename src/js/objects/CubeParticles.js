@@ -30,15 +30,9 @@ var CubeParticles = (function(){
 
             // colors
 
-            /*var vx = ( x / n ) + 0.5;
-            var vy = ( y / n ) + 0.5;
-            var vz = ( z / n ) + 0.5;
-
-            color.setRGB( vx, vy, vz );*/
-
-            colors[ i ]     = 68 / 255;
-            colors[ i + 1 ] = 68 / 255;
-            colors[ i + 2 ] = 68 / 255;
+            colors[ i ]     = 102 / 255;
+            colors[ i + 1 ] = 102 / 255;
+            colors[ i + 2 ] = 102 / 255;
 
         }
 
@@ -82,6 +76,10 @@ var CubeParticles = (function(){
         TweenLite.to(this.particleSystem.geometry.attributes.position.array, 5, newPositions);
         window.setInterval(function() {
             TweenLite.to(cubeParticles.rotation, 1, {y: 100, ease: Expo.easeOut});
+            webgl.renderer.setClearColor(0xF3EDD3);
+            window.setTimeout(function() {
+                webgl.renderer.setClearColor(0x19bec0);
+            }, 1500);
         }, 12000);
     }
 
