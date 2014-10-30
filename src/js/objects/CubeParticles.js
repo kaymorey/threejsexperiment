@@ -80,10 +80,12 @@ var CubeParticles = (function(){
             cubeParticles.rotate = true;
         };
         TweenLite.to(this.particleSystem.geometry.attributes.position.array, 5, newPositions);
+        window.setInterval(function() {
+            TweenLite.to(cubeParticles.rotation, 1, {y: 100, ease: Expo.easeOut});
+        }, 12000);
     }
 
     CubeParticles.prototype.changeColors = function() {
-        console.log('test');
         var colors = this.particleSystem.geometry.attributes.color.array;
 
         var newColors = new Float32Array( this.particles * 3 );
