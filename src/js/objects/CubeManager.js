@@ -6,25 +6,6 @@ var CubeManager = (function(){
 		this.cubes = [];
 	}
 
-	function animateTwoSquares(duration) {
-        
-    }
-
-    function displayHorizontalCubes() {
-        // Left
-        for (var i = -2; i >= -7; i--) {
-            var cube = new Cube(1, 1, 1);
-            cube.position.set(i* 150 ,0, 0);
-            this.cubes.push(cube);
-        }
-        // Right
-        for (var i = 2; i <= 7; i++) {
-            var cube = new Cube(1, 1, 1);
-            cube.position.set(i* 150 ,0, 0);
-            this.cubes.push(cube);
-        }
-    }
-
     CubeManager.prototype.constructor = CubeManager;
 
     CubeManager.prototype.animateFirstSquare = function() {
@@ -123,7 +104,7 @@ var CubeManager = (function(){
         var i = 0;
         for (i = 0; i < this.cubes.length; i++) {
             TweenLite.to(this.cubes[i].scale, 1, {x: 100, y: 100, z: 100, delay: 0.4, ease: Expo.easeOut, onStart: function() {
-                webgl.hoverInteraction = false;
+                webgl.endingInteraction = true;
             },
             onComplete: function() {
                 window.setTimeout(function() {

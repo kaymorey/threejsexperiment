@@ -153,6 +153,13 @@ var Webgl = (function(){
 
             this.INTERSECTED = null;
         }
+
+        if (webgl.endingInteraction && this.INTERSECTED) {
+            TweenLite.to(this.INTERSECTED.scale, 0.3, {x: 1, y: 1});
+            TweenLite.to(this.INTERSECTED.rotation, 0.1, {z: 0});
+
+            webgl.hoverInteraction = false;
+        }
     }
 
     return Webgl;
