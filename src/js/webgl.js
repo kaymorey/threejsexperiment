@@ -55,6 +55,7 @@ var Webgl = (function(){
                     webgl.cubeManager.addZCubes();
                     window.setTimeout(function() {
                         $('h1.third').fadeOut('slow');
+                        $('img.volume').fadeOut('slow');
                     }, 3000);
                 });   
             }, 1000);         

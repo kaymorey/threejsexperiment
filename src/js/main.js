@@ -6,10 +6,6 @@ function init(){
     webgl = new Webgl(window.innerWidth, window.innerHeight);
     $('.three').append(webgl.renderer.domElement);
 
-    gui = new dat.GUI();
-    gui.add(webgl.camera.rotation, 'x').min(-20).max(20);
-    gui.close();
-
     $(window).on('resize', resizeHandler);
     // when the mouse moves, call the given function
     $(window).on('mousemove', onDocumentMouseMove);

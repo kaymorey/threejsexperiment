@@ -24,6 +24,12 @@ body, html {
     overflow: hidden;
 }
 
+img.volume {
+    position: absolute;
+    top: 0;
+    left: 10px;
+}
+
 div.title {
     width: 100%;
     margin: 0 auto;
